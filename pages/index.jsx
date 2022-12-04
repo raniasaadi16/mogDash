@@ -52,12 +52,31 @@ export default function Home({ projects }) {
   )
 }
 
-export async function getServerSideProps(){
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/api/projects`)
-  const data = await res.json()
-  return {
-    props: {
-      projects: data.data.projects
+export async function getServerSideProps({req}){
+  const logRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/api/users/isLoggedin`, {
+    method: 'GET',
+    credentials:'include',
+    headers: {
+        'Access-Control-Allow-Credentials': true,
+        "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_SERVER_ORIGIN,
+        authorization: `bearer ${req.cookies.jwt}`
+    },
+  })
+  const logData = await logRes.json()
+  if(logData.data.isAuth){
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/api/projects`)
+    const data = await res.json()
+    return {
+      props: {
+        projects: data.data.projects
+      }
     }
+  }else{
+      return {
+          redirect: {
+            permanent: false,
+            destination: '/login'
+          }
+      }
   }
 }

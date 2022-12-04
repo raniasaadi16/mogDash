@@ -129,12 +129,31 @@ export default function Create({categories}) {
   )
 }
 
-export async function getServerSideProps(){
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/api/projects/categories/get`)
-    const data = await res.json()
-    return {
-      props: {
-        categories: data.data.categories
-      }
+export async function getServerSideProps({req}){
+    const reponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/api/users/isLoggedin`, {
+        method: 'GET',
+        credentials:'include',
+        headers: {
+            'Access-Control-Allow-Credentials': true,
+            "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_SERVER_ORIGIN,
+            authorization: `bearer ${req.cookies.jwt}`
+        },
+    })
+    const data = await reponse.json()
+    if(data.data.isAuth){
+        const resC = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/api/projects/categories/get`)
+        const dataC = await resC.json()
+        return {
+          props: {
+            categories: dataC.data.categories
+          }
+        }
+    }else{
+        return {
+            redirect: {
+              permanent: false,
+              destination: '/login'
+            }
+        }
     }
   }
