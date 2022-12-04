@@ -1,4 +1,3 @@
-import 'antd/dist/antd.css'
 import { Router } from 'next/router'
 import { useState } from 'react'
 import { AppContextProvider } from '../components/context/AppContext'
